@@ -1,0 +1,376 @@
+# preamble
+id: https://w3id.org/usnistgov/genome-editing-schema
+name: genome-editing-metadata-schema
+title: GEC Metadata Schema
+version: alpha01
+description: Metadata schema genome editing experiments
+prefixes:                                 
+  linkml: https://w3id.org/linkml/
+imports:
+  - linkml:types
+# default_range: string
+  
+#######################################################
+#
+# classes, starting with top-level concepts 
+#
+#######################################################
+classes:
+# the main class GenomeEdit and its parent NamedThing
+  NamedThing:
+    slots: 
+     - id
+     - full_name
+  GenomeEdit:
+    is_a: NamedThing
+    tree_root: true
+    attributes:
+      has_submission_details:
+        range: SubmissionDetails
+        required: true
+      has_experiment:
+        range: Experiment
+      has_experimental_data:
+        range: ExperimentalData
+# level 2: the classes representing the 3 main parts of GenomeEdit
+  SubmissionDetails:
+    is_a: NamedThing
+    description: >-
+      Information about how this metadata record was developed
+    attributes:
+      point_of_contact_name:
+        description: Name of the person submitting this metadata record
+        range: string
+        required: true
+      point_of_contact_email: 
+        description: Email address of the person submitting this metadata record
+        range: string
+        required: true
+      experiment_title: 
+        description: >-
+          A concise textual description of the experiment, e.g., Testing newly discovered Cas_ editors in HEK293 cells
+        range: string
+        required: true
+      experiment_type: 
+        description: >-
+          The type of experiment (base editing, NHEJ, HDR)
+        range: EditingExperimentTypeEnum
+        required: true
+      laboratory_name: 
+        description: >-
+          Name for the laboratory that performed the editing experiment, e.g., Wazowski lab
+        range: string
+      laboratory_id: 
+        description: >-
+          Unique identifier for the laboratory that performed the editing experiment, e.g., http://example.com/wazowski-lab
+        range: string
+  Experiment:
+    is_a: NamedThing
+    attributes:
+      has_conception: 
+        range: Conception
+      has_experimental_design:
+        range: ExperimentalDesign
+      has_assays: 
+        range: Assay
+        multivalued: true
+        inlined_as_list: true
+      has_delivery_agent:
+        range: DeliveryAgent
+      has_biological_system: 
+        range: BiologicalSystem
+      has_components:
+        multivalued: true
+        range: Component
+        inlined_as_list: true
+    slots:
+     - text_description
+     - source
+     - publication     
+  ExperimentalData:
+    is_a: NamedThing
+    slots:
+      - text_description
+      - source
+      - publication     
+# level 3: the classes used to define attributes of level 2
+  Assay:
+    is_a: NamedThing
+    description: >-
+      An assay performed to measure outcomes of an editing experiment, e.g., an assay of off-target effects
+    slots:
+      - assay_type
+      - text_description  
+  BiologicalSystem:
+    is_a: NamedThing
+    abstract: true
+    description: >-
+      The base class for the biological system to be edited, an organism, tissue, or cell model
+    slots: 
+      - biological_system_type
+      - text_description
+      - species_name
+      - species_aliases
+      - strain_name
+      - strain_aliases
+      - source
+      - publication
+  Component:
+    is_a: NamedThing
+    slots:
+      - text_description
+      - source
+      - publication
+      - component_type
+  Conception:
+    is_a: NamedThing
+    description: >-
+      An optional account of the conception of the experiment including objectives and initial design plans
+    attributes:
+      has_objectives: 
+        required: true
+        description: >- 
+          The motivation that determines a particular choice of system, methods, target
+      has_design_plan: 
+        description: >- 
+          An initial design implicating targets and tools, along with software used in design
+      has_design_decision: 
+        description: >- 
+          An explanation for the experimental plan based on the conception and initial design
+  DeliveryAgent: 
+    is_a: NamedThing
+    slots:
+      - text_description
+      - source
+      - publication
+      - delivery_agent_type
+  ExperimentalDesign:
+    is_a: NamedThing
+    description: >-
+      A description of the experimental design specifying the number and type of controls and replicates
+    attributes:
+      has_positive_control_number:
+        description: The number of positive controls, e.g., 2
+        title: Number of positive controls
+        range: integer
+      has_positive_control_description:
+        description: A description of positive controls, e.g., Positive control kit from vendor X
+        title: Number of positive controls
+        range: string
+      has_negative_control_number:
+        description: The number of negative controls, e.g., 5
+        title: Number of negative controls
+        range: integer
+      has_negative_control_description:
+        description: A description of negative controls, e.g., scrambled gRNA
+        title: Number of negative controls
+        range: string
+      has_biological_replicates_number:
+        description: The number of biological replicates, e.g., 2
+        title: Number of biological replicates
+        range: integer
+      has_biological_replicates_description:
+        description: A description of the biological replicates
+        title: Number of biological replicates
+        range: string
+      has_technical_replicates_number:
+        description: The number of technical replicates, e.g., 2
+        title: Number of technical replicates
+        range: integer
+      has_technical_replicates_description:
+        description: A description of the technical replicates, e.g., sequencing from each biological replicate
+        title: Number of technical replicates
+        range: string
+ 
+# the remaining classes below the top levels above
+  AmphiphilicPeptide:
+    is_a: DeliveryAgent
+    slot_usage:
+      delivery_agent_type: amphiphilic_peptide
+  AnimalModel:
+    is_a: BiologicalSystem
+    slots:
+    slot_usage:
+      biological_system_type: animal_model
+  CasEditor:
+    is_a: EditorProtein
+    slots: 
+    slot_usage:   
+      protein_editor_type: cas   
+  CellModel:
+    is_a: BiologicalSystem
+    slots:
+    slot_usage:
+      biological_system_type: cell_model
+  EditorProtein:
+    is_a: Component
+    slots: 
+      - protein_editor_type
+    slot_usage:
+      component_type: editor_protein   
+  EncodingVector:
+    is_a: Component
+    slots: 
+    slot_usage:   
+      component_type: encoding_vector      
+  CommercialReagent:
+    is_a: DeliveryAgent
+    slot_usage:
+      delivery_agent_type: commercial_reagent
+  GuideRNA:
+    is_a: Component
+    slots: 
+    slot_usage:   
+      component_type: guide_rna      
+  HRDonor:
+    is_a: Component
+    slots: 
+    slot_usage:   
+      component_type: hr_donor      
+  ModifiedEditor:
+    is_a: DeliveryAgent
+    slot_usage:
+      delivery_agent_type: modified_editor
+  Nanoparticle:
+    is_a: DeliveryAgent
+    slot_usage:
+      delivery_agent_type: nanoparticle
+  NucleicAcidEditor:
+    is_a: Component
+    slots: 
+    slot_usage:
+      component_type: nucleic_acid_editor      
+  OffTargetAnalysis:
+    is_a: Assay
+    slot_usage:
+      assay_type: off_target_analysis
+  ProteinConjugate:
+    is_a: DeliveryAgent
+    slot_usage:
+      delivery_agent_type: protein_conjugate
+  TALENEditor:
+    is_a: EditorProtein
+    slots: 
+    slot_usage:   
+      protein_editor_type: talen   
+  TissueModel:
+    is_a: BiologicalSystem
+    slots:
+    slot_usage:
+      biological_system_type: tissue_model
+  TransientReporterAssay:
+    is_a: Assay
+    slot_usage:
+      assay_type: transient_reporter_assay
+  ViralLibrary:
+    is_a: Component
+    slots: 
+    slot_usage:   
+      component_type: viral_library      
+  VirusLikeParticle:
+    is_a: DeliveryAgent
+    slot_usage:
+      delivery_agent_type: virus_like_particle
+  ZincFingerEditor:
+    is_a: EditorProtein
+    slots: 
+    slot_usage:   
+      protein_editor_type: zinc_finger
+
+#######################################################
+#
+# slots, in alphabetical order
+#
+#######################################################
+slots:
+  assay_type:
+    description: the type of assay performed
+    range: AssayTypeEnum
+  biological_system_type:
+    description: the type of biological system 
+    range: BiologicalSystemTypeEnum
+  component_type:
+    description: the type of genome editing component
+    range: ComponentTypeEnum
+  delivery_agent_type:
+    description: the type of delivery agent
+    range: DeliveryAgentTypeEnum
+  full_name:
+    description: the full name of the thing
+  id:
+    identifier: true
+  protein_editor_type:
+    description: the type of genome editing component
+    range: EditorProteinTypeEnum
+  publication:
+    description: a publication about this
+  source:
+    description: the source for a reagent or material, e.g., catalog, lab-made, gift
+    range: string
+  species_aliases:
+    description: alternative names for the species, e.g., human
+    range: string
+    multivalued: true
+    inlined_as_list: true
+  species_name:
+    description: primary name for the species, e.g., Homo sapiens
+    range: string
+  strain_aliases:
+    description: alternative names for the strain
+    range: string
+    multivalued: true
+    inlined_as_list: true
+  strain_name:
+    description: primary name for the strain of the biological system
+    range: string
+  text_description:
+    description: a textual description of the thing
+
+ 
+#######################################################
+#
+# enums, in alphabetical order
+#
+#######################################################
+enums:
+  AssayTypeEnum:
+    description: The type of assay performed to assess outcomes
+    permissible_values:
+      transient_reporter_assay:
+      off_target_analysis:
+  BiologicalSystemTypeEnum:
+    description: The type of biological system such as a cell, tissue or organism
+    permissible_values:
+      animal_model:
+      cell_model:
+      tissue_model:
+  ComponentTypeEnum:    
+    description: the type of genome editing component 
+    permissible_values: 
+      editor_protein:
+      guide_rna:
+      hr_donor:
+      viral_library:
+      nucleic_acid_editor:
+      encoding_vector:
+  DeliveryAgentTypeEnum:
+    description: The type of delivery agent such as a nanoparticle or VLP
+    permissible_values:
+      amphiphilic_peptide:
+      commercial_reagent:
+      modified_editor:
+      nanoparticle:
+      protein_conjugate:
+      virus_like_particle:
+  EditingExperimentTypeEnum:    
+    description: A simple type for editing experiment 
+    permissible_values: 
+      base_editing:
+      nhej:
+      hdr:
+  EditorProteinTypeEnum:
+    description: was editor protein type  
+    permissible_values: 
+      cas:
+      talen:
+      zinc_finger:
